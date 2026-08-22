@@ -148,18 +148,43 @@
             // Se ignora para no saturar los logs
         }
 
-        function checkByDni() {
+        async function checkByDni() {
             const dni = document.getElementById('dni-input').value.trim();
             if (!dni) {
                 alert("Por favor ingrese un número de DNI.");
                 return;
             }
-            
-            // Aquí deberías realizar la llamada a tu API (Google Apps Script) para consultar el estado del DNI.
-            // Nota: Actualmente tu script en Google Sheets requiere "DNI" y "Nombre". 
-            // Para que funcione solo con DNI, debes modificar la lógica del archivo Code.gs
-            
-            showResult(false, "Consulta Online", `Función de consulta online para el DNI ${dni} en desarrollo. Por ahora, utiliza el código QR de la aplicación.`);
+
+            const btn = document.querySelector('button[onclick="checkByDni()"]');
+            const originalText = btn.innerText;
+            btn.innerText = "Consultando...";
+            btn.disabled = true;
+
+            try {
+                // URL del script (de AppConfig.loginApiUrl)
+                const apiUrl = 'https://script.google.com/macros/s/AKfycbw5hL-QxkZiAt8G05pEDcpvKzQBOXCcuT2ZVE_PYkz9G1ZvwJ5-edoOQGjK99Z0F-3z2A/exec';
+                const response = await fetch(`${apiUrl}?dni=${dni}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // Adaptar el JSON del backend al formato que espera showResult
+                    const adaptedData = {
+                        name: data.nombre,
+                        dni: data.dni,
+                        nro: data.nroAfiliado,
+                        status: 'activo' // Asumimos activo si se encuentra en la base, o puedes derivarlo de data.vto
+                    };
+                    showResult(true, "Validación Exitosa", "El DNI consultado se encuentra registrado y activo.", adaptedData);
+                } else {
+                    showResult(false, "DNI no encontrado", data.message);
+                }
+            } catch (error) {
+                showResult(false, "Error de Conexión", "No se pudo conectar con la base de datos. Intente más tarde.");
+                console.error("Fetch error:", error);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         function showResult(isValid, title, message, data = null) {
