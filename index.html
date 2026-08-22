@@ -208,8 +208,11 @@
 <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">badge</span>
 <span class="font-label-caps text-[12px] mt-1 font-bold">Credencial</span>
 </a>
-<a onclick="goNews()" class="flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-primary transition-colors" href="#">
+<a onclick="goNewsWeb()" class="flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-primary transition-colors" href="#">
+<div class="relative">
 <span class="material-symbols-outlined text-3xl">newspaper</span>
+<span id="news-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-600 border-2 border-white rounded-full"></span>
+</div>
 <span class="font-label-caps text-[12px] mt-1 font-bold">Novedades</span>
 </a>
 </nav>
@@ -231,11 +234,39 @@
                     statusEl.className = "bg-red-200 text-red-900 px-3 py-1 rounded-full font-label-caps text-label-caps border border-red-500 shadow-sm";
                 }
             }
+
+            checkNewsBadge();
         });
+
+        const NOTIFICATION_API = 'https://script.google.com/macros/s/AKfycbzMHPDQs7kaEsqj4P31TdV3M7Lch_dWinS1CfiQVytNtvDfnCEwerYQPmASRwzU8qaqUA/exec';
+
+        async function checkNewsBadge() {
+            try {
+                const resp = await fetch(`${NOTIFICATION_API}?action=status`);
+                const data = await resp.json();
+                if (data.success && data.enabled) {
+                    const lastRead = localStorage.getItem('lastReadNewsId');
+                    if (String(data.notificationId) !== String(lastRead)) {
+                        document.getElementById('news-badge').classList.remove('hidden');
+                    }
+                }
+            } catch(e) { console.error('Error fetching news status', e); }
+        }
+
+        function goNewsWeb() {
+            document.getElementById('news-badge').classList.add('hidden');
+            fetch(`${NOTIFICATION_API}?action=status`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.enabled) {
+                        localStorage.setItem('lastReadNewsId', String(data.notificationId));
+                    }
+                }).catch(e=>{});
+            if (window.FlutterChannel) window.FlutterChannel.postMessage('news');
+        }
 
         // Flutter Communication
         function logout() { if (window.FlutterChannel) window.FlutterChannel.postMessage('logout'); }
-        function goNews() { if (window.FlutterChannel) window.FlutterChannel.postMessage('news'); }
         function goCredential() { if (window.FlutterChannel) window.FlutterChannel.postMessage('credential'); }
         // Simple tilt effect for the card
         const card = document.querySelector('.metallic-silver');
