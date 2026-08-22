@@ -3,74 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificador de Credencial Digital</title>
+    <title>Comprobación de Afiliados</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet"/>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         body {
-            background-color: #f3f4f6;
-            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f0f2f5;
+            font-family: 'Hanken Grotesk', sans-serif;
         }
         #reader {
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            border-radius: 0.5rem;
+            border-radius: 1rem;
             overflow: hidden;
             display: none;
+            margin-top: 1rem;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Verificador de Credencial</h1>
-            <p class="text-gray-500 mt-2">Ingrese el DNI y escanee el QR del afiliado</p>
-        </div>
+    <div class="bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] max-w-sm w-full mx-auto flex flex-col items-center">
+        
+        <h1 class="text-[22px] font-bold text-gray-800 text-center mb-2">Comprobación de Afiliados</h1>
+        <p class="text-sm text-gray-500 text-center mb-8 px-2 leading-relaxed">
+            Verifique la vigencia y autenticidad de la credencial digital mediante código QR o número de DNI.
+        </p>
 
-        <div class="mb-4">
-            <label for="dni-input" class="block text-sm font-medium text-gray-700 mb-1">DNI del Afiliado</label>
-            <input type="text" id="dni-input" placeholder="Ej: 12345678" 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-        </div>
-
+        <!-- Botón Escanear QR -->
         <button id="start-btn" onclick="startScanner()" 
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-200">
-            Escanear Credencial QR
+                class="w-full bg-[#0d47a1] hover:bg-[#1565c0] text-white font-bold py-3.5 px-4 rounded-full flex items-center justify-center gap-3 transition-colors shadow-md">
+            <span class="material-symbols-outlined text-2xl">qr_code_scanner</span>
+            <span>ESCANEAR CREDENCIAL QR</span>
         </button>
 
         <button id="stop-btn" onclick="stopScanner()" style="display: none;"
-                class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-md transition duration-200 mt-2">
-            Cancelar Escaneo
+                class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 px-4 rounded-full flex items-center justify-center gap-3 transition-colors shadow-md mt-4">
+            <span class="material-symbols-outlined text-2xl">cancel</span>
+            <span>CANCELAR ESCANEO</span>
         </button>
 
-        <div id="reader" class="mt-6 border-2 border-dashed border-gray-300"></div>
+        <div id="reader" class="border-2 border-dashed border-gray-300"></div>
 
-        <div id="result-container" class="mt-6 hidden p-4 rounded-md text-center">
-            <h3 id="result-title" class="text-lg font-bold"></h3>
-            <p id="result-message" class="text-sm mt-1"></p>
-            <div id="result-data" class="mt-3 text-left text-sm hidden">
-                <p><strong>Nombre:</strong> <span id="data-name"></span></p>
-                <p><strong>DNI:</strong> <span id="data-dni"></span></p>
-                <p><strong>N° Afiliado:</strong> <span id="data-nro"></span></p>
-                <p><strong>Estado:</strong> <span id="data-status" class="uppercase font-bold"></span></p>
+        <!-- Separador -->
+        <div class="flex items-center w-full my-8">
+            <hr class="flex-grow border-gray-200">
+            <span class="px-3 text-[10px] font-bold text-gray-400 tracking-wider">O CONSULTAR POR DNI</span>
+            <hr class="flex-grow border-gray-200">
+        </div>
+
+        <!-- Input DNI -->
+        <div class="w-full relative mb-4">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <span class="material-symbols-outlined text-blue-600/70">badge</span>
+            </div>
+            <input type="number" id="dni-input" placeholder="Ingrese el DNI (solo números)" 
+                   class="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#0d47a1] focus:border-transparent text-gray-700 bg-gray-50">
+        </div>
+
+        <!-- Botón Comprobar DNI -->
+        <button onclick="checkByDni()" 
+                class="w-full bg-white border-2 border-[#0d47a1] text-[#0d47a1] hover:bg-blue-50 font-bold py-3 px-4 rounded-full transition-colors">
+            COMPROBAR DNI
+        </button>
+
+        <!-- Footer -->
+        <div class="mt-10 text-center">
+            <p class="text-xs font-bold text-gray-600">Mi Credencial Online</p>
+            <p class="text-[10px] text-gray-400 mt-0.5">Verificación instantánea para comercios y convenios</p>
+        </div>
+
+        <!-- Resultado Modal/Contenedor -->
+        <div id="result-container" class="mt-6 w-full hidden p-5 rounded-2xl text-center shadow-inner">
+            <h3 id="result-title" class="text-lg font-bold mb-1"></h3>
+            <p id="result-message" class="text-sm mb-4 opacity-90"></p>
+            <div id="result-data" class="hidden text-left bg-white/50 rounded-xl p-4 text-sm shadow-sm">
+                <p class="mb-1"><span class="font-bold text-gray-600">Nombre:</span> <span id="data-name" class="font-medium text-gray-800"></span></p>
+                <p class="mb-1"><span class="font-bold text-gray-600">DNI:</span> <span id="data-dni" class="font-medium text-gray-800"></span></p>
+                <p class="mb-1"><span class="font-bold text-gray-600">N° Afiliado:</span> <span id="data-nro" class="font-medium text-gray-800"></span></p>
+                <p><span class="font-bold text-gray-600">Estado:</span> <span id="data-status" class="uppercase font-extrabold tracking-wide"></span></p>
             </div>
         </div>
+
     </div>
 
     <script>
         let html5QrcodeScanner = null;
 
         function startScanner() {
-            const dniInput = document.getElementById('dni-input').value.trim();
-            if (!dniInput) {
-                alert("Por favor ingrese el DNI antes de escanear.");
-                return;
-            }
-
             document.getElementById('start-btn').style.display = 'none';
-            document.getElementById('stop-btn').style.display = 'block';
+            document.getElementById('stop-btn').style.display = 'flex';
             document.getElementById('reader').style.display = 'block';
             hideResult();
 
@@ -83,7 +109,7 @@
                 onScanSuccess,
                 onScanFailure
             ).catch(err => {
-                alert("Error al acceder a la cámara: " + err);
+                alert("Error al acceder a la cámara: Por favor, asegúrese de usar HTTPS y otorgar permisos de cámara.");
                 stopScanner();
             });
         }
@@ -91,7 +117,7 @@
         function stopScanner() {
             if (html5QrcodeScanner) {
                 html5QrcodeScanner.stop().then(() => {
-                    document.getElementById('start-btn').style.display = 'block';
+                    document.getElementById('start-btn').style.display = 'flex';
                     document.getElementById('stop-btn').style.display = 'none';
                     document.getElementById('reader').style.display = 'none';
                 }).catch(err => {
@@ -103,28 +129,37 @@
         function onScanSuccess(decodedText, decodedResult) {
             stopScanner();
             
-            const expectedDni = document.getElementById('dni-input').value.trim();
-            
             try {
                 const data = JSON.parse(decodedText);
                 
-                if (data.dni === expectedDni) {
-                    if (data.status && data.status.toLowerCase() === 'activo') {
-                        showResult(true, "Validación Exitosa", "La credencial corresponde al afiliado y se encuentra activa.", data);
-                    } else {
-                        showResult(false, "Credencial Vencida", "El DNI coincide, pero la credencial se encuentra vencida o inactiva.", data);
-                    }
+                if (data.status && data.status.toLowerCase() === 'activo') {
+                    showResult(true, "Validación Exitosa", "La credencial escaneada se encuentra ACTIVA.", data);
                 } else {
-                    showResult(false, "DNI Incorrecto", `El código QR pertenece al DNI ${data.dni}, pero se esperaba el DNI ${expectedDni}.`, data);
+                    showResult(false, "Credencial Inválida", "La credencial escaneada se encuentra VENCIDA o INACTIVA.", data);
                 }
+                
             } catch (e) {
                 console.error("Error parsing QR", e);
-                showResult(false, "QR Inválido", "El formato del código QR no es válido para esta aplicación.");
+                showResult(false, "QR Inválido", "El formato del código QR escaneado no es reconocido por este sistema.");
             }
         }
 
         function onScanFailure(error) {
             // Se ignora para no saturar los logs
+        }
+
+        function checkByDni() {
+            const dni = document.getElementById('dni-input').value.trim();
+            if (!dni) {
+                alert("Por favor ingrese un número de DNI.");
+                return;
+            }
+            
+            // Aquí deberías realizar la llamada a tu API (Google Apps Script) para consultar el estado del DNI.
+            // Nota: Actualmente tu script en Google Sheets requiere "DNI" y "Nombre". 
+            // Para que funcione solo con DNI, debes modificar la lógica del archivo Code.gs
+            
+            showResult(false, "Consulta Online", `Función de consulta online para el DNI ${dni} en desarrollo. Por ahora, utiliza el código QR de la aplicación.`);
         }
 
         function showResult(isValid, title, message, data = null) {
@@ -133,14 +168,14 @@
             const messageEl = document.getElementById('result-message');
             const dataContainer = document.getElementById('result-data');
             
-            container.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800');
+            container.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'bg-blue-100', 'text-green-800', 'text-red-800', 'text-blue-800');
             titleEl.innerText = title;
             messageEl.innerText = message;
 
             if (isValid) {
                 container.classList.add('bg-green-100', 'text-green-800');
             } else {
-                container.classList.add('bg-red-100', 'text-red-800');
+                container.classList.add(title === 'Consulta Online' ? 'bg-blue-100' : 'bg-red-100', title === 'Consulta Online' ? 'text-blue-800' : 'text-red-800');
             }
 
             if (data) {
@@ -152,9 +187,9 @@
                 const statusEl = document.getElementById('data-status');
                 statusEl.innerText = data.status || '-';
                 if (data.status && data.status.toLowerCase() === 'activo') {
-                    statusEl.className = 'uppercase font-bold text-green-700';
+                    statusEl.className = 'uppercase font-extrabold tracking-wide text-green-700';
                 } else {
-                    statusEl.className = 'uppercase font-bold text-red-700';
+                    statusEl.className = 'uppercase font-extrabold tracking-wide text-red-700';
                 }
             } else {
                 dataContainer.classList.add('hidden');
